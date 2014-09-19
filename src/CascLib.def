@@ -1,0 +1,18 @@
+EXPORTS
+    qsort_pointer_array
+
+    CascOpenStorage
+    CascGetStorageInfo
+    CascCloseStorage
+
+    CascOpenFileByIndexKey
+    CascOpenFileByEncodingKey
+    CascOpenFile
+    CascGetFileSize
+    CascSetFilePointer
+    CascReadFile
+    CascCloseFile
+
+    CascFindFirstFile
+    CascFindNextFile
+    CascFindClose

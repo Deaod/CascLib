@@ -10,6 +10,8 @@ set(PUBLIC_HEADERS
     src/CascPort.h
 )
 
+set(CASCLIB_EXPORTS_FILE src/CascLib.def)
+
 if(WIN32 AND MSVC)
     option(WITH_UNICODE    "Compile with Unicode support (Windows-only)" ON)
     option(WITH_STATIC_CRT "Link a static CRT library (Windows-only)"    OFF)
@@ -92,19 +94,21 @@ if(WIN32)
             add_definitions(-DWIN64)
         endif()
         
+        set(SRC_ADDITIONAL_FILES ${SRC_ADDITIONAL_FILES} ${CASCLIB_EXPORTS_FILE})
+        
     else()
         info("Using mingw or cygwin")
         
     endif()
     
-    set(SRC_ADDITIONAL_FILES ${ZLIB_BZIP2_FILES} ${TOMCRYPT_FILES})
+    set(SRC_ADDITIONAL_FILES ${SRC_ADDITIONAL_FILES} ${ZLIB_BZIP2_FILES} ${TOMCRYPT_FILES})
     set(LINK_LIBS wininet)
     set(CASCLIB_NAME CascLib)
     
 elseif(APPLE)
     info("Using Mac OS X port")
     
-    set(SRC_ADDITIONAL_FILES ${TOMCRYPT_FILES})
+    set(SRC_ADDITIONAL_FILES ${SRC_ADDITIONAL_FILES} ${TOMCRYPT_FILES})
     set(LINK_LIBS z bz2)
     set(CASCLIB_NAME casc)
     
@@ -116,7 +120,7 @@ elseif(${CMAKE_SYSTEM_NAME} STREQUAL Linux)
         set(LINK_LIBS z bz2 tomcrypt)
     else()
         set(LINK_LIBS z bz2)
-        set(SRC_ADDITIONAL_FILES ${TOMCRYPT_FILES})
+        set(SRC_ADDITIONAL_FILES ${SRC_ADDITIONAL_FILES} ${TOMCRYPT_FILES})
     endif()
     
     set(CASCLIB_NAME casc)
