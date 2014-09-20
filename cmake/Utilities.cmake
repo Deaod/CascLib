@@ -17,10 +17,13 @@ endmacro()
 macro(default_target_configuration target)
     target_link_libraries(${target} ${LINK_LIBS})
     
-    if(${CMAKE_VERSION} VERSION_GREATER "2.8.0")
-        #
-        # CMake 2.8.1 is the first version with per-configuration output directories
-        #
+    if(${CMAKE_VERSION} VERSION_LESS "2.8")
+        set_target_properties(${target} PROPERTIES
+            ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/lib
+            LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/lib
+            RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin
+        )
+    else()
         set_target_properties(${target} PROPERTIES
             ARCHIVE_OUTPUT_DIRECTORY_DEBUG          ${CMAKE_CURRENT_SOURCE_DIR}/lib
             ARCHIVE_OUTPUT_DIRECTORY_RELEASE        ${CMAKE_CURRENT_SOURCE_DIR}/lib
@@ -37,33 +40,12 @@ macro(default_target_configuration target)
             RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO ${CMAKE_CURRENT_SOURCE_DIR}/bin
             RUNTIME_OUTPUT_DIRECTORY_MINSIZEREL     ${CMAKE_CURRENT_SOURCE_DIR}/bin
         )
-    else()
-        set_target_properties(${target} PROPERTIES
-            ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/lib
-            LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/lib
-            RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin
-        )
     endif()
     
-    if(WIN32 AND MSVC)
-
+    if(MSVC)
         if(WITH_UNICODE)
             get_target_property(pre_defs ${target} COMPILE_DEFINITIONS)
             set_target_properties(${target} PROPERTIES COMPILE_DEFINITIONS "${pre_defs};_UNICODE;UNICODE")
-        endif()
-        
-        if(WITH_STATIC_CRT)
-            string(REPLACE "/MD" "/MT" CMAKE_CXX_FLAGS_DEBUG ${CMAKE_CXX_FLAGS_DEBUG})
-            string(REPLACE "/MD" "/MT" CMAKE_C_FLAGS_DEBUG ${CMAKE_C_FLAGS_DEBUG})
-            
-            string(REPLACE "/MD" "/MT" CMAKE_CXX_FLAGS_RELEASE ${CMAKE_CXX_FLAGS_RELEASE})
-            string(REPLACE "/MD" "/MT" CMAKE_C_FLAGS_RELEASE ${CMAKE_C_FLAGS_RELEASE})
-            
-            string(REPLACE "/MD" "/MT" CMAKE_CXX_FLAGS_RELWITHDEBINFO ${CMAKE_CXX_FLAGS_RELWITHDEBINFO})
-            string(REPLACE "/MD" "/MT" CMAKE_C_FLAGS_RELWITHDEBINFO ${CMAKE_C_FLAGS_RELWITHDEBINFO})
-            
-            string(REPLACE "/MD" "/MT" CMAKE_CXX_FLAGS_MINSIZEREL ${CMAKE_CXX_FLAGS_MINSIZEREL})
-            string(REPLACE "/MD" "/MT" CMAKE_C_FLAGS_MINSIZEREL ${CMAKE_C_FLAGS_MINSIZEREL})
         endif()
     endif()
     
@@ -73,9 +55,9 @@ macro(default_target_configuration target)
         set_target_properties(${target} PROPERTIES LINK_FLAGS "-framework Carbon")
     endif()
 
-    if(NOT(STATIC_LIBRARY) AND UNIX)
+    if(NOT(STATIC_LIBRARY))
         set_target_properties(${target} PROPERTIES VERSION ${PROJECT_VERSION})
-        set_target_properties(${target} PROPERTIES SOVERSION ${PROJECT_INTERFACE_REVISION})
+        set_target_properties(${target} PROPERTIES SOVERSION ${PROJECT_API_REVISION})
     endif()
 endmacro()
 

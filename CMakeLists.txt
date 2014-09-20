@@ -2,8 +2,8 @@ cmake_minimum_required(VERSION 2.6)
 include(cmake/Utilities.cmake)
 
 project(CascLib)
-set(PROJECT_VERSION 1.0.0)
-set(PROJECT_INTERFACE_REVISION 1)
+set(PROJECT_VERSION 1.0)
+set(PROJECT_API_REVISION 1)
 
 set(PUBLIC_HEADERS
     src/CascLib.h
@@ -89,16 +89,50 @@ if(WIN32)
         source_group("source\\zlib" FILES ${ZLIB_BZIP2_FILES})
         source_group("source\\tomcrypt" FILES ${TOMCRYPT_FILES})
         
-        add_definitions(-DWIN32)
-        if(CMAKE_SIZEOF_VOID_P EQUAL 8)
-            add_definitions(-DWIN64)
+        if(WITH_STATIC_CRT)
+            string(REPLACE "/MD" "/MT" CMAKE_CXX_FLAGS_DEBUG ${CMAKE_CXX_FLAGS_DEBUG})
+            string(REPLACE "/MD" "/MT" CMAKE_C_FLAGS_DEBUG ${CMAKE_C_FLAGS_DEBUG})
+            
+            string(REPLACE "/MD" "/MT" CMAKE_CXX_FLAGS_RELEASE ${CMAKE_CXX_FLAGS_RELEASE})
+            string(REPLACE "/MD" "/MT" CMAKE_C_FLAGS_RELEASE ${CMAKE_C_FLAGS_RELEASE})
+            
+            string(REPLACE "/MD" "/MT" CMAKE_CXX_FLAGS_RELWITHDEBINFO ${CMAKE_CXX_FLAGS_RELWITHDEBINFO})
+            string(REPLACE "/MD" "/MT" CMAKE_C_FLAGS_RELWITHDEBINFO ${CMAKE_C_FLAGS_RELWITHDEBINFO})
+            
+            string(REPLACE "/MD" "/MT" CMAKE_CXX_FLAGS_MINSIZEREL ${CMAKE_CXX_FLAGS_MINSIZEREL})
+            string(REPLACE "/MD" "/MT" CMAKE_C_FLAGS_MINSIZEREL ${CMAKE_C_FLAGS_MINSIZEREL})
         endif()
         
+        # CMake automatically recognizes .DEF files as export definition files. Awesome.
         set(SRC_ADDITIONAL_FILES ${SRC_ADDITIONAL_FILES} ${CASCLIB_EXPORTS_FILE})
+        
+        
+        # Enable all warnings
+        string(REPLACE "/W3" "/Wall" CMAKE_C_FLAGS ${CMAKE_C_FLAGS})
+        string(REPLACE "/W3" "/Wall" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
+        
+        # Disable a few specific warnings
+        add_definitions(
+            /wd4127 # conditional expression is constant
+            /wd4131 # 'XXX' : uses old-style declarator
+            /wd4255 # 'XXX' : no function prototype given: converting '()' to '(void)'
+            /wd4668 # 'XXX' is not defined as a preprocessor macro, replacing with '0' for '#if/#elif' 
+            /wd4820 # 'XXX' : 'Y' bytes padding added after data member 'XXX::ZZZ'
+        )
+        
+        # Disable warnings specific to lookup3.c
+        # 4101 : 'XXX' : unreferenced local variable
+        # 4127 : conditional expression is constant
+        set_source_files_properties(src/jenkins/lookup3.c PROPERTIES COMPILE_FLAGS "/wd4101 /wd4127")
         
     else()
         info("Using mingw or cygwin")
         
+    endif()
+    
+    add_definitions(-DWIN32)
+    if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+        add_definitions(-DWIN64)
     endif()
     
     set(SRC_ADDITIONAL_FILES ${SRC_ADDITIONAL_FILES} ${ZLIB_BZIP2_FILES} ${TOMCRYPT_FILES})
