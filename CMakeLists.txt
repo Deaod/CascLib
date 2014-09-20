@@ -122,8 +122,12 @@ if(WIN32)
         
         # Disable warnings specific to lookup3.c
         # 4101 : 'XXX' : unreferenced local variable
-        # 4127 : conditional expression is constant
-        set_source_files_properties(src/jenkins/lookup3.c PROPERTIES COMPILE_FLAGS "/wd4101 /wd4127")
+        set_source_files_properties(src/jenkins/lookup3.c PROPERTIES COMPILE_FLAGS "/wd4101 /wd4127 /wd4820")
+        
+        # Disable warnings specific to inflate.c
+        # 4242 : '=' : conversion from 'XXX' to 'YYY', possible loss of data
+        # 4244 : '=' : conversion from 'XXX' to 'YYY', possible loss of data
+        set_source_files_properties(src/zlib/inflate.c PROPERTIES COMPILE_FLAGS "/wd4127 /wd4131 /wd4242 /wd4244 /wd4668 /wd4820")
         
     else()
         info("Using mingw or cygwin")

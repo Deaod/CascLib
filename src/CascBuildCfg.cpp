@@ -152,7 +152,7 @@ static int StringBlobToBinaryBlob(
         if(DigitOne > 0x0F || DigitTwo > 0x0F || pBlob->cbData >= MAX_CASC_KEY_LENGTH)
             return ERROR_BAD_FORMAT;
 
-        pBlob->pbData[pBlob->cbData++] = (DigitOne << 0x04) | DigitTwo;
+        pBlob->pbData[pBlob->cbData++] = (DWORD)((DigitOne << 0x04) | DigitTwo);
         pbBlobBegin += 2;
     }
 
@@ -370,7 +370,7 @@ static int LoadBlobArray(
 static int LoadSingleBlob(PQUERY_KEY pBlob, LPBYTE pbBlobBegin, LPBYTE pbBlobEnd)
 {
     LPBYTE pbBuffer;
-    size_t nLength = (pbBlobEnd - pbBlobBegin) / 2;
+    size_t nLength = (size_t)((pbBlobEnd - pbBlobBegin) / 2);
 
     // Check maximum size
     if(nLength > MAX_CASC_KEY_LENGTH)
@@ -468,7 +468,7 @@ static int LoadTextFile(const TCHAR * szFileName, PQUERY_KEY pFileBlob)
         FileStream_Close(pStream);
     }
     else
-        nError = GetLastError();
+        nError = (int)GetLastError();
 
     return nError;
 }

@@ -134,7 +134,7 @@ static size_t ReadListFileLine(TListFileCache * pCache, char * szLine, size_t nM
             szExtraString = szLine;
 
         // Copy the character
-        *szLine++ = *pCache->pPos++;
+        *szLine++ = (char)(*pCache->pPos++);
     }
 
     // Terminate line with zero
@@ -151,7 +151,7 @@ static size_t ReadListFileLine(TListFileCache * pCache, char * szLine, size_t nM
     }
 
     // Return the length of the line
-    return (szLine - szLineBegin);
+    return (size_t)(szLine - szLineBegin);
 }
 
 static TListFileCache * CreateListFileCache(RELOAD_CACHE pfnReloadCache, CLOSE_STREAM pfnCloseStream, void * pvCacheContext, DWORD dwFileSize)
@@ -223,7 +223,7 @@ size_t ListFile_GetNext(void * pvListFile, const char * szMask, char * szBuffer,
 {
     TListFileCache * pCache = (TListFileCache *)pvListFile;
     size_t nLength = 0;
-    int nError = ERROR_INVALID_PARAMETER;
+    DWORD dwError = ERROR_INVALID_PARAMETER;
 
     // Check for parameters
     if(pCache != NULL)
@@ -234,21 +234,21 @@ size_t ListFile_GetNext(void * pvListFile, const char * szMask, char * szBuffer,
             nLength = ReadListFileLine(pCache, szBuffer, nMaxChars);
             if(nLength == 0)
             {
-                nError = ERROR_NO_MORE_FILES;
+                dwError = ERROR_NO_MORE_FILES;
                 break;
             }
 
             // If some mask entered, check it
             if(CheckWildCard(szBuffer, szMask))
             {
-                nError = ERROR_SUCCESS;
+                dwError = ERROR_SUCCESS;
                 break;
             }
         }
     }
 
-    if(nError != ERROR_SUCCESS)
-        SetLastError(nError);
+    if (dwError != ERROR_SUCCESS)
+        SetLastError(dwError);
     return nLength;
 }
 

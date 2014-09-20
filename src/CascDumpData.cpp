@@ -517,7 +517,7 @@ void CascDumpFile(const char * szFileName, HANDLE hFile)
         fclose(fp);
 
         // Restore the file pointer
-        CascSetFilePointer(hFile, dwFilePos, NULL, FILE_BEGIN);
+        CascSetFilePointer(hFile, (LONG)(dwFilePos), NULL, FILE_BEGIN);
     }
 }
 

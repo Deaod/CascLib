@@ -54,7 +54,7 @@ static bool BaseFile_Create(TFileStream * pStream)
 {
 #ifdef PLATFORM_WINDOWS
     {
-        DWORD dwWriteShare = (pStream->dwFlags & STREAM_FLAG_WRITE_SHARE) ? FILE_SHARE_WRITE : 0;
+        DWORD dwWriteShare = (DWORD)((pStream->dwFlags & STREAM_FLAG_WRITE_SHARE) ? FILE_SHARE_WRITE : 0);
 
         pStream->Base.File.hFile = CreateFile(pStream->szFileName,
                                               GENERIC_READ | GENERIC_WRITE,
@@ -94,8 +94,8 @@ static bool BaseFile_Open(TFileStream * pStream, const TCHAR * szFileName, DWORD
 #ifdef PLATFORM_WINDOWS
     {
         ULARGE_INTEGER FileSize;
-        DWORD dwWriteAccess = (dwStreamFlags & STREAM_FLAG_READ_ONLY) ? 0 : FILE_WRITE_DATA | FILE_APPEND_DATA | FILE_WRITE_ATTRIBUTES;
-        DWORD dwWriteShare = (dwStreamFlags & STREAM_FLAG_WRITE_SHARE) ? FILE_SHARE_WRITE : 0;
+        DWORD dwWriteAccess = (DWORD)((dwStreamFlags & STREAM_FLAG_READ_ONLY) ? 0 : FILE_WRITE_DATA | FILE_APPEND_DATA | FILE_WRITE_ATTRIBUTES);
+        DWORD dwWriteShare = (DWORD)((dwStreamFlags & STREAM_FLAG_WRITE_SHARE) ? FILE_SHARE_WRITE : 0);
 
         // Open the file
         pStream->Base.File.hFile = CreateFile(szFileName,
@@ -590,17 +590,17 @@ static bool BaseHttp_Open(TFileStream * pStream, const TCHAR * szFileName, DWORD
     HINTERNET hRequest;
     DWORD dwTemp = 0;
     bool bFileAvailable = false;
-    int nError = ERROR_SUCCESS;
+    DWORD dwError = ERROR_SUCCESS;
 
     // Keep compiler happy
     dwStreamFlags = dwStreamFlags;
 
     // Don't connect to the internet
     if(!InternetGetConnectedState(&dwTemp, 0))
-        nError = GetLastError();
+        dwError = GetLastError();
 
     // Initiate the connection to the internet
-    if(nError == ERROR_SUCCESS)
+    if (dwError == ERROR_SUCCESS)
     {
         pStream->Base.Http.hInternet = InternetOpen(_T("CascLib HTTP archive reader"),
                                                     INTERNET_OPEN_TYPE_PRECONFIG,
@@ -608,11 +608,11 @@ static bool BaseHttp_Open(TFileStream * pStream, const TCHAR * szFileName, DWORD
                                                     NULL,
                                                     0);
         if(pStream->Base.Http.hInternet == NULL)
-            nError = GetLastError();
+            dwError = GetLastError();
     }
 
     // Connect to the server
-    if(nError == ERROR_SUCCESS)
+    if (dwError == ERROR_SUCCESS)
     {
         TCHAR szServerName[MAX_PATH];
         DWORD dwFlags = INTERNET_FLAG_KEEP_CONNECTION | INTERNET_FLAG_NO_UI | INTERNET_FLAG_NO_CACHE_WRITE;
@@ -628,11 +628,11 @@ static bool BaseHttp_Open(TFileStream * pStream, const TCHAR * szFileName, DWORD
                                                       dwFlags,
                                                       0);
         if(pStream->Base.Http.hConnect == NULL)
-            nError = GetLastError();
+            dwError = GetLastError();
     }
 
     // Now try to query the file size
-    if(nError == ERROR_SUCCESS)
+    if (dwError == ERROR_SUCCESS)
     {
         // Open HTTP request to the file
         hRequest = HttpOpenRequest(pStream->Base.Http.hConnect, _T("GET"), szFileName, NULL, NULL, NULL, INTERNET_FLAG_NO_CACHE_WRITE, 0);
@@ -1154,7 +1154,7 @@ static void FlatStream_UpdateBitmap(
         // Move all
         StartOffset += BlockSize;
         ByteIndex += (BitMask >> 0x07);
-        BitMask = (BitMask >> 0x07) | (BitMask << 0x01);
+        BitMask = (DWORD)((BitMask >> 0x07) | (BitMask << 0x01));
     }
 
     // Increment the bitmap update count

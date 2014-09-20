@@ -229,7 +229,7 @@ static bool OpenFileByIndexKey(TCascStorage * hs, PQUERY_KEY pIndexKey, DWORD dw
     }
 
     if(nError != ERROR_SUCCESS)
-        SetLastError(nError);
+        SetLastError((DWORD)nError);
     return (nError == ERROR_SUCCESS);
 }
 
@@ -391,7 +391,7 @@ bool WINAPI CascOpenFile(HANDLE hStorage, const char * szFileName, DWORD dwLocal
             if(!OpenFileByEncodingKey(hs, &EncodingKey, dwFlags, phFile))
             {
                 assert(GetLastError() != ERROR_SUCCESS);
-                nError = GetLastError();
+                nError = (int)GetLastError();
             }
         }
 
@@ -402,7 +402,7 @@ bool WINAPI CascOpenFile(HANDLE hStorage, const char * szFileName, DWORD dwLocal
         nError = ERROR_NOT_ENOUGH_MEMORY;
 
     if(nError != ERROR_SUCCESS)
-        SetLastError(nError);
+        SetLastError((DWORD)nError);
     return (nError == ERROR_SUCCESS);
 }
 

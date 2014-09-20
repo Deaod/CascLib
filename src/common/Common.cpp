@@ -236,7 +236,7 @@ void NormalizeFileName_UpperBkSlash(char * szFileName)
 {
     // Normalize the file name: ToLower + BackSlashToSlash
     for(size_t i = 0; szFileName[i] != 0; i++)
-        szFileName[i] = AsciiToUpperTable[szFileName[i]];
+        szFileName[i] = (char)(AsciiToUpperTable[szFileName[i]]);
 }
 
 void NormalizeFileName_LowerSlash(char * szFileName)
@@ -244,7 +244,7 @@ void NormalizeFileName_LowerSlash(char * szFileName)
     // Normalize the file name: ToLower + BackSlashToSlash
     for(size_t i = 0; szFileName[i] != 0; i++)
     {
-        szFileName[i] = AsciiToLowerTable[szFileName[i]];
+        szFileName[i] = (char)(AsciiToLowerTable[szFileName[i]]);
         szFileName[i] = (szFileName[i] != '\\') ? szFileName[i] : '/';
     }
 }
@@ -303,8 +303,8 @@ char * StringFromBinary(LPBYTE pbBinary, size_t cbBinary, char * szBuffer)
     // Copy the blob data as text
     for(size_t i = 0; i < cbBinary; i++)
     {
-        *szBuffer++ = IntToHexChar[pbBinary[0] >> 0x04];
-        *szBuffer++ = IntToHexChar[pbBinary[0] & 0x0F];
+        *szBuffer++ = (char)(IntToHexChar[pbBinary[0] >> 0x04]);
+        *szBuffer++ = (char)(IntToHexChar[pbBinary[0] & 0x0F]);
         pbBinary++;
     }
 

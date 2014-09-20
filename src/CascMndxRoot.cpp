@@ -1051,7 +1051,7 @@ DWORD TSparseArray::GetItemValue(DWORD ItemIndex)
     if(ItemIndex & 0x20)
         BaseValue += GetNumbrOfSetBits32(ItemBits.Uint32Array[DwordIndex - 1]);
 
-    BitMask = (1 << (ItemIndex & 0x1F)) - 1;
+    BitMask = (1UL << (ItemIndex & 0x1F)) - 1;
     return BaseValue + GetNumbrOfSetBits32(ItemBits.Uint32Array[DwordIndex] & BitMask);
 }
 
@@ -2451,7 +2451,7 @@ bool TFileNameDatabase::sub_1958B00(TMndxFindResult * pStruct1C)
             if(FrgmDist_LoBits.ByteArray[pStruct40->ItemIndex] == pStruct1C->szSearchMask[pStruct40->CharIndex])
             {
                 // HOTS: 1958D11
-                pStruct40->array_00.InsertOneItem_CHAR(FrgmDist_LoBits.ByteArray[pStruct40->ItemIndex]);
+                pStruct40->array_00.InsertOneItem_CHAR((char)(FrgmDist_LoBits.ByteArray[pStruct40->ItemIndex]));
                 pStruct40->CharIndex++;
                 return true;
             }

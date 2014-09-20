@@ -561,7 +561,7 @@ static int LoadKeyMapping(PCASC_MAPPING_TABLE pKeyMapping, DWORD KeyIndex)
         FileStream_Close(pStream);
     }
     else
-        nError = GetLastError();
+        nError = (int)GetLastError();
 
     return ERROR_SUCCESS;
 }
@@ -728,7 +728,7 @@ static LPBYTE LoadCascFile(HANDLE hFile, DWORD cbMaxSize, PDWORD pcbFileData)
         cbFileData = 0;
 
         // Set the last error value
-        SetLastError(nError);
+        SetLastError((DWORD)nError);
     }
 
     // Return what we got
@@ -753,10 +753,10 @@ static int LoadIndexFiles(TCascStorage * hs)
         // Load each index file
         for(i = 0; i < CASC_INDEX_COUNT; i++)
         {
-            hs->KeyMapping[i].szFileName = CreateIndexFileName(hs, i, IndexArray[i]);
+            hs->KeyMapping[i].szFileName = CreateIndexFileName(hs, (DWORD)i, IndexArray[i]);
             if(hs->KeyMapping[i].szFileName != NULL)
             {
-                nError = LoadKeyMapping(&hs->KeyMapping[i], i);
+                nError = LoadKeyMapping(&hs->KeyMapping[i], (DWORD)i);
                 if(nError != ERROR_SUCCESS)
                     break;
             }
@@ -786,7 +786,7 @@ static int LoadEncodingFile(TCascStorage * hs)
 
     // Open the encoding file
     if(!CascOpenFileByIndexKey((HANDLE)hs, &hs->EncodingEKey, 0, &hFile))
-        nError = GetLastError();
+        nError = (int)GetLastError();
 
     // Load the encoding file to memory
     if(nError == ERROR_SUCCESS)
@@ -961,7 +961,7 @@ static int LoadRootFile(TCascStorage * hs)
     // Note: The "root" key file's MD5 hash is equal to its name
     // in the configuration
     if(!CascOpenFileByEncodingKey((HANDLE)hs, &hs->RootKey, 0, &hFile))
-        nError = GetLastError();
+        nError = (int)GetLastError();
 
     // Load ther entire root file to memory
     if(nError == ERROR_SUCCESS)
@@ -1132,7 +1132,7 @@ bool WINAPI CascOpenStorage(const TCHAR * szDataPath, DWORD dwFlags, HANDLE * ph
     if(nError != ERROR_SUCCESS)
     {
         hs = FreeCascStorage(hs);
-        SetLastError(nError);
+        SetLastError((DWORD)nError);
     }
 
     *phStorage = (HANDLE)hs;
@@ -1192,6 +1192,7 @@ bool WINAPI CascGetStorageInfo(
             *(PDWORD)pvStorageInfo = dwCascFeatures;
             return true;
 
+        case CascStorageInfoClassMax: // fall through intended
         default:
             SetLastError(ERROR_INVALID_PARAMETER);
             return false;

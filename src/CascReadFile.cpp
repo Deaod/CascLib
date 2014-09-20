@@ -121,7 +121,7 @@ static int LoadFileFrames(TCascFile * hf, DWORD FrameCount)
             hf->FrameCount = FrameCount;
         }
         else
-            nError = GetLastError();
+            nError = (int)GetLastError();
 
         // Verify the file size
 //      assert(FileSize == hf->FileSize);
@@ -296,7 +296,7 @@ DWORD WINAPI CascSetFilePointer(HANDLE hFile, LONG lFilePos, LONG * plFilePosHig
     // Now get the move offset. Note that both values form
     // a signed 64-bit value (a file pointer can be moved backwards)
     if(plFilePosHigh != NULL)
-        dwFilePosHi = *plFilePosHigh;
+        dwFilePosHi = (DWORD)*plFilePosHigh;
     else
         dwFilePosHi = (lFilePos & 0x80000000) ? 0xFFFFFFFF : 0;
     MoveOffset = MAKE_OFFSET64(dwFilePosHi, lFilePos);
@@ -418,7 +418,7 @@ bool WINAPI CascReadFile(HANDLE hFile, void * pvBuffer, DWORD dwBytesToRead, PDW
                 if(!FileStream_Read(hf->pStream, &FileOffset, pbRawData, pFrame->CompressedSize))
                 {
                     CASC_FREE(pbRawData);
-                    nError = GetLastError();
+                    nError = (int)GetLastError();
                     break;
                 }
 
@@ -469,7 +469,7 @@ bool WINAPI CascReadFile(HANDLE hFile, void * pvBuffer, DWORD dwBytesToRead, PDW
     }
 
     if(nError != ERROR_SUCCESS)
-        SetLastError(nError);
+        SetLastError((DWORD)nError);
     return (nError == ERROR_SUCCESS);
 }
 
