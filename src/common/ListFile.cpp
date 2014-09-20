@@ -223,7 +223,7 @@ size_t ListFile_GetNext(void * pvListFile, const char * szMask, char * szBuffer,
 {
     TListFileCache * pCache = (TListFileCache *)pvListFile;
     size_t nLength = 0;
-    DWORD dwError = ERROR_INVALID_PARAMETER;
+    int nError = ERROR_INVALID_PARAMETER;
 
     // Check for parameters
     if(pCache != NULL)
@@ -234,21 +234,21 @@ size_t ListFile_GetNext(void * pvListFile, const char * szMask, char * szBuffer,
             nLength = ReadListFileLine(pCache, szBuffer, nMaxChars);
             if(nLength == 0)
             {
-                dwError = ERROR_NO_MORE_FILES;
+                nError = ERROR_NO_MORE_FILES;
                 break;
             }
 
             // If some mask entered, check it
             if(CheckWildCard(szBuffer, szMask))
             {
-                dwError = ERROR_SUCCESS;
+                nError = ERROR_SUCCESS;
                 break;
             }
         }
     }
 
-    if (dwError != ERROR_SUCCESS)
-        SetLastError(dwError);
+    if (nError != ERROR_SUCCESS)
+        SetLastError((DWORD)nError);
     return nLength;
 }
 

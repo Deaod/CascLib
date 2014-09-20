@@ -590,17 +590,17 @@ static bool BaseHttp_Open(TFileStream * pStream, const TCHAR * szFileName, DWORD
     HINTERNET hRequest;
     DWORD dwTemp = 0;
     bool bFileAvailable = false;
-    DWORD dwError = ERROR_SUCCESS;
+    int nError = ERROR_SUCCESS;
 
     // Keep compiler happy
     dwStreamFlags = dwStreamFlags;
 
     // Don't connect to the internet
     if(!InternetGetConnectedState(&dwTemp, 0))
-        dwError = GetLastError();
+        nError = (int)GetLastError();
 
     // Initiate the connection to the internet
-    if (dwError == ERROR_SUCCESS)
+    if (nError == ERROR_SUCCESS)
     {
         pStream->Base.Http.hInternet = InternetOpen(_T("CascLib HTTP archive reader"),
                                                     INTERNET_OPEN_TYPE_PRECONFIG,
@@ -608,11 +608,11 @@ static bool BaseHttp_Open(TFileStream * pStream, const TCHAR * szFileName, DWORD
                                                     NULL,
                                                     0);
         if(pStream->Base.Http.hInternet == NULL)
-            dwError = GetLastError();
+            nError = (int)GetLastError();
     }
 
     // Connect to the server
-    if (dwError == ERROR_SUCCESS)
+    if (nError == ERROR_SUCCESS)
     {
         TCHAR szServerName[MAX_PATH];
         DWORD dwFlags = INTERNET_FLAG_KEEP_CONNECTION | INTERNET_FLAG_NO_UI | INTERNET_FLAG_NO_CACHE_WRITE;
@@ -628,11 +628,11 @@ static bool BaseHttp_Open(TFileStream * pStream, const TCHAR * szFileName, DWORD
                                                       dwFlags,
                                                       0);
         if(pStream->Base.Http.hConnect == NULL)
-            dwError = GetLastError();
+            nError = (int)GetLastError();
     }
 
     // Now try to query the file size
-    if (dwError == ERROR_SUCCESS)
+    if (nError == ERROR_SUCCESS)
     {
         // Open HTTP request to the file
         hRequest = HttpOpenRequest(pStream->Base.Http.hConnect, _T("GET"), szFileName, NULL, NULL, NULL, INTERNET_FLAG_NO_CACHE_WRITE, 0);
